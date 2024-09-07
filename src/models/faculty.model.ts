@@ -12,12 +12,27 @@ const facultySchema: Schema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'User' // Link to the User collection
+    ref: 'User', // Link to the User collection
+    validate: {
+      validator: async function (value: Types.ObjectId) {
+          const userCount = await mongoose.model("User").countDocuments({ _id: value });
+          return userCount > 0; 
+      },
+      message: "User does not exist", 
+  },
   },
   departmentId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'Department' // Link to the Department collection
+    ref: 'Department',
+    validate: {
+      validator: async function (value: Types.ObjectId) {
+          // Check if the department exists in the Department collection
+          const departmentCount = await mongoose.model("Department").countDocuments({ _id: value });
+          return departmentCount > 0; // Returns true if the department exists
+      },
+      message: "Department does not exist", // Error message if the validation fails
+  }, // Link to the Department collection
   }
 }, {
   timestamps: true // Adds createdAt and updatedAt fields

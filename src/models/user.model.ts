@@ -47,6 +47,14 @@ const userSchema: Schema = new Schema(
         departmentId: {
             type: Schema.Types.ObjectId,
             ref: "Department",
+            validate: {
+                validator: async function (value: Types.ObjectId) {
+                    // Check if the department exists in the Department collection
+                    const departmentCount = await mongoose.model("Department").countDocuments({ _id: value });
+                    return departmentCount > 0; // Returns true if the department exists
+                },
+                message: "Department does not exist", // Error message if the validation fails
+            },
         },
     },
     {

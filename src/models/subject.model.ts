@@ -25,7 +25,15 @@ const subjectSchema: Schema = new Schema({
     facultyId: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: 'Faculty' // Link to the Faculty collection
+      ref: 'Faculty', // Link to the Faculty collection
+      validate: {
+        validator: async function (value: Types.ObjectId) {
+            // Check if the Faculty exists in the Faculty collection
+            const facultyCount = await mongoose.model("Faculty").countDocuments({ _id: value });
+            return facultyCount > 0; // Returns true if the faculty exists
+        },
+        message: "Faculty does not exist", // Error message if the validation fails
+    },
     }
   }]
 }, {

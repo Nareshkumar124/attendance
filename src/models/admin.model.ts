@@ -11,7 +11,15 @@ const adminSchema: Schema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'User' // Link to the User collection
+    ref: 'User', // Link to the User collection
+    validate: {
+      validator: async function (value: Types.ObjectId) {
+          
+          const userCount = await mongoose.model("User").countDocuments({ _id: value });
+          return userCount > 0; 
+      },
+      message: "User does not exist", 
+  },
   },
   position: {
     type: String,

@@ -17,12 +17,28 @@ const attendanceSchema: Schema = new Schema({
   subjectId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'Subject' // Link to the Subject collection
+    ref: 'Subject',
+    validate: {
+      validator: async function (value: Types.ObjectId) {
+          
+          const subjectCount = await mongoose.model("Subject").countDocuments({ _id: value });
+          return subjectCount > 0; 
+      },
+      message: "Subject does not exist", 
+  }, // Link to the Subject collection
   },
   studentId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'Student' // Link to the Student collection
+    ref: 'Student',
+    validate: {
+      validator: async function (value: Types.ObjectId) {
+          
+          const studentCount = await mongoose.model("Student").countDocuments({ _id: value });
+          return studentCount > 0; 
+      },
+      message: "Student does not exist", 
+  }, // Link to the Student collection
   },
   status: {
     type: String,
