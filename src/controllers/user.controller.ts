@@ -30,16 +30,16 @@ const loginUser = asyncHandler(async function (
 ) {
     const { auid, password } = req.body;
     if (!auid) {
-        return new ApiError(400, "Auid is required");
+        throw new ApiError(400, "Auid is required");
     }
     if (!password) {
-        return new ApiError(400, "Password is required");
+        throw new ApiError(400, "Password is required");
     }
 
     const user = await User.findOne({ auid: auid });
 
     if (!user) {
-        throw new ApiError(401, "User not register");
+        throw new ApiError(401, "User not registered");
     }
 
     const passwordCorrectOrNot = await user.isPasswordCorrect(password);
@@ -49,10 +49,6 @@ const loginUser = asyncHandler(async function (
     }
     const accessToken = user.accessToken();
     const userInDb = await User.findById(user._id).select("-password");
-
-
-
-
     res.status(200)
     .cookie("token",accessToken,{
         maxAge: 86400000,
