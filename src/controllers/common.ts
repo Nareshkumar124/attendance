@@ -3,6 +3,7 @@ import {User} from '../models/user.model';
 import {Request} from 'express';
 import {ApiError} from '../utils/ApiError';
 import {IUser} from '../models/user.model';
+import {Course} from '../models/course.model';
 
 /**
  * Get a user by ID
@@ -28,7 +29,7 @@ const getUserData = async function (userId: Types.ObjectId): Promise<IUser> {
  * @returns {Promise<{auid: string, name: string, email: string, password: string, departmentId?: string}>} - User data
  * @throws {ApiError} - If any of the fields are missing or empty
  */
-const getUserDataFromRequest = async function (req: Request): Promise<{ auid: string, name: string, email: string, password: string, departmentId?: string }> {
+const getUserDataFromRequest = async function (req: Request): Promise<{ auid: string, name: string, email: string, password: string, departmentId: string }> {
 
     const { auid, name, email, password, departmentId } = req.body;
 
@@ -48,7 +49,17 @@ const getUserDataFromRequest = async function (req: Request): Promise<{ auid: st
 }
 
 
+const courseExistsInDepartment= async function(departmentId:string,courseId:string){
+    
+    const courseCount = await Course.countDocuments({departmentId,_id:courseId});
+
+    return courseCount > 0;
+    
+}
+
+
 export {
     getUserData,
-    getUserDataFromRequest
+    getUserDataFromRequest,
+    courseExistsInDepartment
 }

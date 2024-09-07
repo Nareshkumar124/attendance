@@ -10,7 +10,7 @@ interface IUser extends Document {
     email: string;
     password: string;
     role: "student" | "faculty" | "admin";
-    departmentId?: Types.ObjectId;
+    departmentId: Types.ObjectId;
 
     isPasswordCorrect(password:String):Promise<boolean>;
     accessToken():String;
@@ -47,6 +47,7 @@ const userSchema: Schema = new Schema(
         departmentId: {
             type: Schema.Types.ObjectId,
             ref: "Department",
+            required: true,
             validate: {
                 validator: async function (value: Types.ObjectId) {
                     // Check if the department exists in the Department collection

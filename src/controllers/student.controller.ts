@@ -5,7 +5,7 @@ import {asyncHandler} from '../utils/handler';
 import {Student} from '../models/student.model';
 import {ApiResponse} from '../utils/ApiResponse';
 import {User} from '../models/user.model';
-import { getUserData, getUserDataFromRequest } from "./common";
+import { getUserData, getUserDataFromRequest,courseExistsInDepartment } from "./common";
 
 
 // use to register a student user
@@ -14,13 +14,21 @@ const registerStudent = asyncHandler(async function (
     res: Response,
     next: NextFunction
 ) {
-    let user = await getUserDataFromRequest(req);
 
-    user=Object.assign(user,{role:"student"});
+    const user = await getUserDataFromRequest(req);
+
+    const userWithRole=Object.assign(user,{role:"student"}) as UserRegisterData;
 
     const {courseId}=req.body;
+
+    if(!(await courseExistsInDepartment(user.departmentId,courseId))){
+        throw new ApiError(
+            400,"course not exists in your department"
+        )
+    }
+
     // Create user
-    let userInDb = await register(user as UserRegisterData);
+    let userInDb = await register(userWithRole);
 
     // Create student
     let studentInDb = await Student.create({

@@ -10,7 +10,7 @@ interface UserRegisterData {
     email: string;
     password: string;
     role: "student" | "faculty" | "admin";
-    departmentId?: String;
+    departmentId: String;
 }
 
 const register = async function (userData: UserRegisterData) {
