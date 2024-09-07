@@ -21,6 +21,10 @@ const registerStudent = asyncHandler(async function (
 
     const {courseId}=req.body;
 
+    if(!courseId || courseId===""){
+        throw new ApiError(400,"course id is required");
+    }
+
     if(!(await courseExistsInDepartment(user.departmentId,courseId))){
         throw new ApiError(
             400,"course not exists in your department"

@@ -10,7 +10,7 @@ const createDepartment=asyncHandler(
 
         const {name}=req.body;
 
-        if(!name){
+        if(!name || name === ""){
             throw new ApiError(401,"Department name is required")
         }
 

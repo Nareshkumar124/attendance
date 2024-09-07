@@ -29,10 +29,10 @@ const loginUser = asyncHandler(async function (
     next: NextFunction
 ) {
     const { auid, password } = req.body;
-    if (!auid) {
+    if (!auid || auid==="") {
         throw new ApiError(400, "Auid is required");
     }
-    if (!password) {
+    if (!password || password==="") {
         throw new ApiError(400, "Password is required");
     }
 
