@@ -1,8 +1,10 @@
 import {asyncHandler} from '../utils/handler';
 import {Request,Response,NextFunction} from 'express';
-import {Department} from '../models/department.model';
+import {Department,IDepartment} from '../models/department.model';
 import {ApiResponse} from '../utils/ApiResponse';
 import {ApiError} from '../utils/ApiError';
+import {csvToJson} from '../utils/csvToJson';
+import fs from 'fs/promises';
 
 
 const createDepartment=asyncHandler(
@@ -62,10 +64,48 @@ const getAllDepartment=asyncHandler(
     }
 )
 
+const uploadDepartmentsUsingCsv=asyncHandler(
+    async function (req:Request,res:Response,next:NextFunction){
+        const filePath=req.file?.path;
 
+        if(!filePath){
+            throw new ApiError(
+                400,"File is required"
+            )
+        }
+        const jsonArray=await csvToJson(filePath);
+
+        fs.unlink(filePath);
+
+        if(!jsonArray){
+            throw new ApiError(
+                400,"Failed to convert csv to json"
+            )
+        }
+
+        const validatedJsonArray=[]
+
+        for(const item of jsonArray){
+            const department=new Department(item);
+
+            await department.validate();
+
+            validatedJsonArray.push(department)
+        }
+
+        await Department.insertMany(validatedJsonArray);
+
+        res.status(200).json(
+            new ApiResponse(200,jsonArray)
+        )
+
+    }
+)
 
 export {
     getDepartment,
     createDepartment,
-    getAllDepartment
+    getAllDepartment,
+    uploadDepartmentsUsingCsv,
+
 }
