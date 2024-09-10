@@ -14,10 +14,10 @@ const verifyJwt = asyncHandler(async function (
     res: Response,
     next: NextFunction
 ) {
-    const token = req.header("Authorization")?.replace("Bearer ", "") || req.cookies["token"];
+    const token=    req.cookies?.token || req.header("Authorization")?.replace("Bearer ", "")
 
     // Check token is present or not
-    if (!token) {
+    if (!token || token.trim()=="") {
         throw new ApiError(400, "Token is required");
     }
 

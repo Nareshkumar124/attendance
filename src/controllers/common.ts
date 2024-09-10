@@ -4,6 +4,8 @@ import {Request} from 'express';
 import {ApiError} from '../utils/ApiError';
 import {IUser} from '../models/user.model';
 import {Course} from '../models/course.model';
+import {csvToJson} from '../utils/csvToJson';
+import fs from 'fs/promises';
 
 /**
  * Get a user by ID
@@ -57,9 +59,38 @@ const courseExistsInDepartment= async function(departmentId:string,courseId:stri
     
 }
 
+const getDataFromCsvFile=async function(req:Request){
+    
+    const file=req.file;
+
+    if(!file){
+        throw new ApiError(
+            400,"Csv file is required"
+        )
+    }
+
+    if(file.mimetype !== "text/csv"){
+        throw new ApiError(400,"File must be a cvs file")
+    }
+
+    const filePath=file.path;
+
+    const jsonArray=await csvToJson(filePath);
+
+    fs.unlink(filePath);
+    
+    if(!jsonArray){
+        throw new ApiError(
+            400,"Failed to parse file"
+        )
+    }
+
+    return jsonArray;
+}
 
 export {
     getUserData,
     getUserDataFromRequest,
-    courseExistsInDepartment
+    courseExistsInDepartment,
+    getDataFromCsvFile
 }

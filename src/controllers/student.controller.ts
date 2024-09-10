@@ -64,7 +64,6 @@ const getStudent=asyncHandler(async function (req:Request,res:Response,next:Next
     
     const {_id}=res.locals.user;
 
-
     const user=await getUserData(_id);
 
     const student=await Student.findOne({userId:_id});
