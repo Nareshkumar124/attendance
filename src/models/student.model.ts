@@ -10,15 +10,17 @@ interface IStudent extends Document {
 const studentSchema: Schema = new Schema(
     {
         userId: {
-            type: String,
+            type: Schema.Types.ObjectId,
             required: true,
             ref: "User",
             validate: {
                 validator: async function (value: Types.ObjectId) {
-                    const userCount = await mongoose.model("User").countDocuments({ _id: value });
-                    return userCount > 0; 
+                    const userCount = await mongoose
+                        .model("User")
+                        .countDocuments({ _id: value });
+                    return userCount > 0;
                 },
-                message: "User does not exist", 
+                message: "User does not exist",
             },
         },
         courseId: {
@@ -28,7 +30,9 @@ const studentSchema: Schema = new Schema(
             validate: {
                 validator: async function (value: Types.ObjectId) {
                     // Check if the course exists in the Course collection
-                    const courseCount = await mongoose.model("Course").countDocuments({ _id: value });
+                    const courseCount = await mongoose
+                        .model("Course")
+                        .countDocuments({ _id: value });
                     return courseCount > 0; // Returns true if the course exists
                 },
                 message: "Course does not exist", // Error message if the validation fails
