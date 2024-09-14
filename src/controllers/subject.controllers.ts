@@ -95,7 +95,6 @@ const getSubjectAccordingToStudent = asyncHandler(async function (
         }
     ])
 
-
     res.status(200).json(new ApiResponse(200, subjects[0].subjects));
 });
 
