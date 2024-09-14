@@ -104,15 +104,13 @@ const getSubjectAccordingToFaculty = asyncHandler(async function (
     res: Response,
     next: NextFunction
 ) {
-    const { userId } = res.locals.user;
+    const { _id:userId } = res.locals.user;
 
-    // const subjects=await Subject.find({facultyId:userId});
-
-    // if(!subjects){
-    //     throw new ApiError(
-    //         500,"Internal Server Error"
-    //     )
-    // }
+    if(!userId){
+        throw new ApiError(
+            400,"user id is required"
+        )
+    }
 
     const subjects = await Subject.aggregate([
         {
