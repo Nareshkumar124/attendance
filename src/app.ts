@@ -31,7 +31,7 @@ app.use(express.static("public"));
 
 app.use(cookieParser());
 
-app.use(morgan("combined"));
+app.use(morgan("combined")); // Use for showing request in terminal
 
 // Router
 app.use("/api/v1/user", userRouter);

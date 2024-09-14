@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { Request, Response, NextFunction } from "express";
 import { Subject } from "../models/subject.model";
 import { Student } from "../models/student.model";
+import { Types } from "mongoose";
 
 const getSubjectAccordingToCourse = async function (courseId: any) {
     const subjects = await Subject.find({ courseId });
@@ -49,21 +50,53 @@ const getSubjectAccordingToStudent = asyncHandler(async function (
     res: Response,
     next: NextFunction
 ) {
-    const { userId } = res.locals.user;
+    const { _id:userId } = res.locals.user;
+
 
     if (!userId) {
         throw new ApiError(400, "User id is required");
     }
 
-    const student = await Student.findOne({ userId });
+    const subjects = await Student.aggregate([
+        {
+            "$match":{
+                userId
+            },
+        },
+        {
+            "$lookup":{
+                from:"subjects",
+                localField:"courseId",
+                foreignField:"courseId",
+                as:"subjects",
+                pipeline:[
+                    {
+                        "$lookup":{
+                            from:"users",
+                            localField:"facultyId",
+                            foreignField:"_id",
+                            as:"faculty"
+                        },
+                    },
+                    {
+                        $project:{
+                            "name":1,
+                            "faculty":{
+                                "$arrayElemAt":["$faculty",0]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "$unset":[
+                "subjects.faculty.password",]
+        }
+    ])
 
-    if (!student) {
-        throw new ApiError(500, "Internal server error");
-    }
 
-    const subjects = await getSubjectAccordingToCourse(student.courseId);
-
-    res.status(200).json(new ApiResponse(200, subjects));
+    res.status(200).json(new ApiResponse(200, subjects[0].subjects));
 });
 
 const getSubjectAccordingToFaculty = asyncHandler(async function (
@@ -105,45 +138,64 @@ const getSubject = asyncHandler(async function (
 ) {
     const { subjectId } = req.body;
 
+    if (!subjectId) {
+        throw new ApiError(400, "Subject id is required");
+    }
+
     const detail = await Subject.aggregate([
         {
-            $match: {
-                _id: subjectId,
+            "$match": {
+                "_id": Types.ObjectId.createFromHexString(subjectId),
             },
         },
         {
-            $lookup: {
-                from: "courses",
-                localField: "courseId",
-                foreignField: "_id",
-                as: "course",
+            "$lookup": {
+                "from": "courses",
+                "localField": "courseId",
+                "foreignField": "_id",
+                "as": "course",
             },
         },
         {
-            $lookup: {
-                from: "faculties",
-                localField: "facultyId",
-                foreignField: "_id",
-                as: "course",
-                pipeline: [
+            "$lookup": {
+                "from": "faculties",
+                "localField": "facultyId",
+                "foreignField": "userId",
+                "as": "faculty",
+                "pipeline": [
                     {
-                        $lookup: {
-                            from: "users",
-                            localField: "userId",
-                            foreignField: "_id",
-                            as: "user",
+                        "$lookup": {
+                            "from": "users",
+                            "localField": "userId",
+                            "foreignField": "_id",
+                            "as": "user",
                         },
                     },
+                   
                 ],
             },
         },
+        {
+            "$project":{
+                "name":1,
+                "course":{
+                    "$arrayElemAt": ["$course", 0],
+                },
+                "faculty":{
+                    "$arrayElemAt": ["$faculty", 0],
+                },
+            }
+        },
+        {
+            "$unset":["user.password"]
+        }
     ]);
 
-    if (!detail) {
-        throw new ApiError(500, "Internal Server error");
+    if (!detail.length) {
+        throw new ApiError(500, "Subject not found");
     }
 
-    res.status(200).json(new ApiResponse(200, detail));
+    res.status(200).json(new ApiResponse(200, detail[0]));
 });
 
 export {

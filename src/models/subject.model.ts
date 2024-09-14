@@ -37,13 +37,12 @@ const subjectSchema: Schema = new Schema(
             ref: "Faculty", // Link to the Faculty collection
             validate: {
                 validator: async function (value: Types.ObjectId) {
-                    // Check if the Faculty exists in the Faculty collection
                     const facultyCount = await mongoose
-                        .model("Faculty")
+                        .model("User")
                         .countDocuments({ _id: value });
-                    return facultyCount > 0; // Returns true if the faculty exists
+                    return facultyCount > 0; // TODO: Also check for role of user.
                 },
-                message: "Faculty does not exist", // Error message if the validation fails
+                message: "Faculty does not exist",
             },
         },
     },

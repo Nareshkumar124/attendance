@@ -59,4 +59,10 @@ const getFaculty = asyncHandler(async function (
     );
 });
 
+const getAllFaculty = asyncHandler(async function (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {});
+
 export { registerFaculty, getFaculty };

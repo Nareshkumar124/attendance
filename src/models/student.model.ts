@@ -33,7 +33,7 @@ const studentSchema: Schema = new Schema(
                     const courseCount = await mongoose
                         .model("Course")
                         .countDocuments({ _id: value });
-                    return courseCount > 0; // Returns true if the course exists
+                    return courseCount > 0;
                 },
                 message: "Course does not exist", // Error message if the validation fails
             },
