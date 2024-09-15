@@ -55,7 +55,7 @@ const getFaculty = asyncHandler(async function (
     }
 
     res.status(200).json(
-        new ApiResponse(200, { userInDb, facultyInDb }, "Faculty Data")
+        new ApiResponse(200, { user:userInDb, faculty:facultyInDb }, "Faculty Data")
     );
 });
 

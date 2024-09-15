@@ -95,6 +95,10 @@ const getSubjectAccordingToStudent = asyncHandler(async function (
         }
     ])
 
+    if(!subjects.length){
+        throw new ApiError(500,"Subject not found");
+    }
+
     res.status(200).json(new ApiResponse(200, subjects[0].subjects));
 });
 

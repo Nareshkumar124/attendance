@@ -26,7 +26,7 @@ const addDay = asyncHandler(async function (
         throw new ApiError(500, "Internal server error");
     }
 
-    res.status(200).json(new ApiResponse(200, newDay));
+    res.status(201).json(new ApiResponse(201, newDay));
 });
 
 const addDaysCsv=asyncHandler(async function(req:Request,res:Response,next:NextFunction){
@@ -45,13 +45,13 @@ const addDaysCsv=asyncHandler(async function(req:Request,res:Response,next:NextF
 
     await AcademicCalendar.insertMany(validatedJsonArray);
 
-    res.status(200).json(
-        new ApiResponse(200,jsonArray,"Data inserted successfully")
+    res.status(201).json(
+        new ApiResponse(201,jsonArray,"Data inserted successfully")
     )
 })
 
 
 export {
     addDay,
-    addDaysCsv
+    addDaysCsv,
 }

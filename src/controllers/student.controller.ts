@@ -3,6 +3,7 @@ import { register, UserRegisterData } from "./user.controller";
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../utils/handler";
 import { Student } from "../models/student.model";
+import {Types} from 'mongoose';
 import { ApiResponse } from "../utils/ApiResponse";
 import { User } from "../models/user.model";
 import {
@@ -69,15 +70,107 @@ const getStudent = asyncHandler(async function (
 ) {
     const { _id } = res.locals.user;
 
-    const user = await getUserData(_id);
+    console.log(_id);
+    // const user = await getUserData(_id);
 
-    const student = await Student.findOne({ userId: _id });
+    // const student = await Student.findOne({ userId: _id });
 
-    if (!student) {
+    const student=await Student.aggregate([
+        {
+            $match:{
+                userId: _id
+            }
+        },
+        {
+            $lookup:{
+                from:"users",
+                localField:"userId",
+                foreignField:"_id",
+                as:"user",
+                pipeline:[
+                    { $project: { password: 0 } },
+                ]
+            }
+        },
+        {
+            $lookup:{
+                from:"courses",
+                localField:"courseId",
+                foreignField:"_id",
+                as:"course"
+            }
+        },
+        {
+            $lookup:{
+                from:"departments",
+                localField:"user.departmentId",
+                foreignField:"_id",
+                as:"department"
+            }
+        },
+        {
+            $project:{
+                user:{  
+                    $arrayElemAt:["$user",0]
+                },
+                course:{
+                    $arrayElemAt:["$course",0]
+                },
+                department:{
+                    $arrayElemAt:["$department",0]
+                }
+            }
+        }
+    ])
+
+    if (!student.length) {
         throw new ApiError(400, "Student is not found");
     }
 
-    res.status(200).json(new ApiResponse(200, { user, student }));
+    res.status(200).json(new ApiResponse(200, student[0]));
 });
 
-export { registerStudent, getStudent };
+const getAllStudentAccordingToCourse=asyncHandler(
+    async function(req:Request,res:Response,next:NextFunction){
+        const {courseId}=req.body;
+
+        if(!courseId){
+            throw new ApiError(400,"Course id is required")
+        }
+
+        const studentList=await Student.aggregate([
+            {
+                $match:{
+                    courseId: Types.ObjectId.createFromHexString(courseId)
+                }
+            },
+            {
+                $lookup:{
+                    from:"users",
+                    localField:"userId",
+                    foreignField:"_id",
+                    as:"user"
+                }
+            },
+            {
+                $project:{
+                    user:{
+                        $arrayElemAt:["$user",0]
+                    }
+                }
+            },{
+                $unset:["user.password"]
+            }
+        ])
+
+        if(!studentList){
+            throw new ApiError(500,"Internal server error")
+        }
+
+        res.status(200).json(
+            new ApiResponse(200,studentList,"Student in course")
+        )
+    }
+)
+
+export { registerStudent, getStudent,getAllStudentAccordingToCourse };

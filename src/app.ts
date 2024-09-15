@@ -5,6 +5,8 @@ import { studentRouter } from "./routes/student.routes";
 import { departmentRouter } from "./routes/department.routes";
 import { courseRouter } from "./routes/course.routes";
 import { facultyRouter } from "./routes/faculty.routes";
+import {attendanceRouter} from './routes/attendance.routes';
+import {calendarRouter} from './routes/calendar.router';
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { subjectRouter } from "./routes/subject.routes";
@@ -40,5 +42,7 @@ app.use("/api/v1/department", departmentRouter);
 app.use("/api/v1/course", courseRouter);
 app.use("/api/v1/faculty", facultyRouter);
 app.use("/api/v1/subject", subjectRouter);
+app.use("/api/v1/attendance", attendanceRouter);
+app.use("/api/v1/calendar", calendarRouter);
 
 export default app;

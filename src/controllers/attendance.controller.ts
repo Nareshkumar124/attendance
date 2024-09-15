@@ -107,3 +107,10 @@ const unMarkAttendance = asyncHandler(async function (
 const getAttendanceAccordingToStudent = null;
 
 const getAttendanceAccordingToSubject = null;
+
+
+export {
+  markAttendance,
+  unMarkAttendance,
+  markTodayAttendance
+}
