@@ -6,7 +6,7 @@ import { departmentRouter } from "./routes/department.routes";
 import { courseRouter } from "./routes/course.routes";
 import { facultyRouter } from "./routes/faculty.routes";
 import {attendanceRouter} from './routes/attendance.routes';
-import {calendarRouter} from './routes/calendar.router';
+import {calendarRouter} from './routes/calendar.routes';
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { subjectRouter } from "./routes/subject.routes";

@@ -48,7 +48,7 @@ const attendanceSchema: Schema = new Schema(
       validate: {
         validator: async function (value: Types.ObjectId) {
           const studentCount = await mongoose
-            .model("Student")
+            .model("User")
             .countDocuments({ _id: value });
           return studentCount > 0;
         },

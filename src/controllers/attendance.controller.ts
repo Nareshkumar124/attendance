@@ -4,11 +4,13 @@ import { asyncHandler } from "../utils/handler";
 import { Request, Response, NextFunction } from "express";
 import { Attendance } from "../models/attendance.model";
 import {AcademicCalendar} from '../models/calendar.model';
+import {Types} from 'mongoose';
 
-const setAttendance = async function (req: Request, todayDate?: Date) {
-  let { date, subjectId, studentId } = req.body;
+const setAttendance = async function (req: Request, res:Response,todayDate?: Date) {
+  let { date, subjectId } = req.body;
 
-  if (todayDate) {
+  
+  if (todayDate instanceof Date) {
     date = todayDate;
   }
 
@@ -17,10 +19,19 @@ const setAttendance = async function (req: Request, todayDate?: Date) {
   if (!date) {
     throw new ApiError(400, "Date is required");
   }
-
+  
   if (!subjectId) {
     throw new ApiError(400, "Subject id is required");
   }
+
+  let studentId = res.locals.user._id;
+
+  if(!studentId){
+    studentId=req.body.studentId;
+  }
+
+  console.log(studentId);
+
   if (!studentId) {
     throw new ApiError(400, "Student id is required");
   }
@@ -73,19 +84,19 @@ const markTodayAttendance = asyncHandler(async function (
 ) {
   const today = new Date();
 
-  const attendance = await setAttendance(req, today);
+  const attendance = await setAttendance(req,res, today);
 
   res
     .status(201)
     .json(new ApiResponse(201, attendance, "Attendance marked successfully"));
 });
 
-const markAttendance = asyncHandler(async function (
+const markAttendance = asyncHandler(async function ( //Ok
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const attendance = await setAttendance(req);
+  const attendance = await setAttendance(req,res);
 
   res
     .status(201)
@@ -118,7 +129,7 @@ const getAttendanceAccordingToStudent = asyncHandler(
 
     if(!startDate || !endDate){
       throw new ApiError(
-        400,"Start Date and End is required"
+        400,"Start Date and End Date is required"
       )
     }
 
@@ -128,14 +139,65 @@ const getAttendanceAccordingToStudent = asyncHandler(
       throw new ApiError(400,"Subject id is required")
     }
 
-    const attendanceData= AcademicCalendar.aggregate();
+    const attendanceSummary = await AcademicCalendar.aggregate([
+      {
+        // Match documents in the AcademicCalendar between startDate and endDate
+        $match: {
+          date: {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate),
+          },
+        },
+      },
+      {
+        // Perform a left outer join with the Attendance collection
+        $lookup: {
+          from: "attendances",
+          let: { calendarDate: "$date" }, // Define the local field for the join
+          pipeline: [
+            {
+              $match: {
+                // Filter Attendance records for the matching subjectId, studentId, and date
+                $expr: {
+                  $and: [
+                    { $eq: ["$subjectId", Types.ObjectId.createFromHexString(subjectId)] },
+                    { $eq: ["$studentId", studentId ] },
+                    { $eq: ["$date", "$$calendarDate"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "attendanceRecords", // Output the matching attendance data
+        },
+      },
+      {
+        // Add a field to indicate whether the student was present or absent
+        $addFields: {
+          present: {
+            // Check if the attendanceRecords array has any entries, which means present
+            $cond: { if: { $gt: [{ $size: "$attendanceRecords" }, 0] }, then: true, else: false },
+          },
+        },
+      },
+      {
+        // Project the required fields
+        $project: {
+          _id: 0, // Exclude the _id field
+          date: 1, // Include the date from AcademicCalendar
+          dayType: 1, // Include the dayType from AcademicCalendar
+          present: 1, // Include the presence status
+        },
+      },
+    ]);
 
-    if(!attendanceData){
+    
+    if(!attendanceSummary){
       throw new ApiError(500,"Internal Server Error")
     }
 
     res.status(200).json(
-      new ApiResponse(200,attendanceData,"Attendance Data")
+      new ApiResponse(200,attendanceSummary,"Attendance Data")
     )
   }
 );
@@ -175,7 +237,8 @@ export {
   markAttendance,
   unMarkAttendance,
   markTodayAttendance,
-  calculationOfAttendance,
   getAttendanceAccordingToStudent,
-  getAttendanceAccordingToSubject
+  getAttendanceAccordingToSubject,
+  getAttendanceAccordingToCourseOfStudent,
+  calculationOfAttendance,
 }
