@@ -51,11 +51,15 @@ const getFaculty = asyncHandler(async function (
     const facultyInDb = await Faculty.findOne({ userId: _id });
 
     if (!facultyInDb) {
-        throw new ApiError(500, "Internal Server Error");
+        throw new ApiError(404, "Faculty not found");
     }
 
     res.status(200).json(
-        new ApiResponse(200, { user:userInDb, faculty:facultyInDb }, "Faculty Data")
+        new ApiResponse(
+            200,
+            { user: userInDb, faculty: facultyInDb },
+            "Faculty Data"
+        )
     );
 });
 

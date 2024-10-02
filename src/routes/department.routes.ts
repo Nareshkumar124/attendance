@@ -1,21 +1,25 @@
-import {Router} from 'express';
-import {verifyJwt} from '../middlewares/auth';
-import {getAllDepartment,getDepartment,createDepartment,uploadDepartmentsUsingCsv} from '../controllers/department.controller';
-import {upload} from '../middlewares/multer';
+import { Router } from "express";
+import { verifyJwt } from "../middlewares/auth";
+import {
+    getAllDepartment,
+    getDepartment,
+    createDepartment,
+    uploadDepartmentsUsingCsv,
+} from "../controllers/department.controller";
+import { upload } from "../middlewares/multer";
 
-const departmentRouter:Router=Router();
+const departmentRouter: Router = Router();
 
 // departmentRouter.use(verifyJwt)
 
-departmentRouter.route("/")
-.get(getDepartment)
-.post(createDepartment);
+departmentRouter.route("/").post(getDepartment);
 
-departmentRouter.route("/all").get(getAllDepartment);
+departmentRouter.route("/create").post(createDepartment);
 
-departmentRouter.route("/upload").post(upload.single("file"),uploadDepartmentsUsingCsv);
+departmentRouter.route("/all").post(getAllDepartment);
 
-export {
-    departmentRouter
-}
+departmentRouter
+    .route("/upload")
+    .post(upload.single("file"), uploadDepartmentsUsingCsv);
 
+export { departmentRouter };

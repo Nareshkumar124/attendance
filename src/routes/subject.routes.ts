@@ -9,10 +9,11 @@ import { verifyJwt } from "../middlewares/auth";
 
 const subjectRouter: Router = Router();
 
-subjectRouter.route("/").get(verifyJwt, getSubject).post(verifyJwt, addSubject);
+subjectRouter.route("/").post(verifyJwt, getSubject);
+subjectRouter.route("/create").post(verifyJwt, addSubject);
 
-subjectRouter.route("/faculty").get(verifyJwt, getSubjectAccordingToFaculty);
+subjectRouter.route("/faculty").post(verifyJwt, getSubjectAccordingToFaculty);
 
-subjectRouter.route("/student").get(verifyJwt, getSubjectAccordingToStudent);
+subjectRouter.route("/student").post(verifyJwt, getSubjectAccordingToStudent);
 
 export { subjectRouter };
