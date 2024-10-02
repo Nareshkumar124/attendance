@@ -10,7 +10,7 @@ attendanceRouter.route("/today").post(verifyJwt,markTodayAttendance);
 attendanceRouter.route("/unmark").delete(verifyJwt,unMarkAttendance);
 
 attendanceRouter.route("/student").get(verifyJwt,getAttendanceAccordingToStudent);
-attendanceRouter.route("/subject").get(verifyJwt,getAttendanceAccordingToStudent)
+attendanceRouter.route("/subject").get(verifyJwt,getAttendanceAccordingToSubject);
 
 
 export {
