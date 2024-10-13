@@ -13,12 +13,13 @@ import { User } from "../models/user.model";
 const setAttendance = async function (
     req: Request,
     res: Response,
-    todayDate?: Date
+    todayDate?: Date,
+    studentId?: string
 ) {
     let { date, subjectId } = req.body;
 
     if (todayDate instanceof Date) {
-        date = todayDate;
+        date = todayDate.toISOString().slice(0, 10);
     }
 
     console.log(date);
@@ -30,14 +31,9 @@ const setAttendance = async function (
     if (!subjectId) {
         throw new ApiError(400, "Subject id is required");
     }
-
-    let studentId = res.locals.user._id;
-
-    if (!studentId) {
-        studentId = req.body.studentId;
+    if(!studentId){
+        studentId = res.locals.user._id;
     }
-
-    console.log(studentId);
 
     if (!studentId) {
         throw new ApiError(400, "Student id is required");
@@ -104,7 +100,12 @@ const markAttendance = asyncHandler(async function (
     res: Response,
     next: NextFunction
 ) {
-    const attendance = await setAttendance(req, res);
+    const {studentId}=req.body;
+
+    if(!studentId){
+        throw new ApiError(400,"Student id is required");
+    }
+    const attendance = await setAttendance(req, res, undefined,studentId);
 
     res.status(201).json(
         new ApiResponse(201, attendance, "Attendance marked successfully")
