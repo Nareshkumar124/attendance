@@ -219,6 +219,7 @@ const getAttendanceAccordingToStudent = asyncHandler(async function (
                                 $and: [
                                     { $eq: ["$facultyId", facultyId] },
                                     { $eq: ["$date", "$$calendarDate"] },
+                                    { $eq: ["$subjectId", Types.ObjectId.createFromHexString(subjectId)] },
                                 ],
                             },
                         },
