@@ -39,6 +39,16 @@ const setAttendance = async function (
         throw new ApiError(400, "Student id is required");
     }
 
+    const checkAttendance=await Attendance.findOne({
+        date: date,
+        subjectId: subjectId,
+        studentId: studentId,
+    })
+
+    if(checkAttendance){
+        throw new ApiError(400, "Attendance already marked");
+    }
+
     const attendance = await Attendance.create({
         date: date,
         subjectId: subjectId,
@@ -281,7 +291,7 @@ const getAttendanceAccordingToSubject = asyncHandler(async function (
             throw new ApiError(400, "Today is holiday");
         }
     } else {
-        throw new ApiError(500, "Internal Server error");
+        throw new ApiError(500, "Not a working day");
     }
 
     // Check if there's a faculty mark for this subject on the given date
