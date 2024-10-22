@@ -10,6 +10,8 @@ import {
     getUserDataFromRequest,
     courseExistsInDepartment,
     getUserData,
+    getDataFromCsvFile,
+    getUserDataFromObject
 } from "./common";
 
 // use to register a student user
@@ -62,6 +64,63 @@ const registerStudent = asyncHandler(async function (
         )
     );
 });
+
+
+const registerStudentByCsv=asyncHandler(async function(req:Request,res:Response,next:NextFunction){
+    
+    const csvData= await getDataFromCsvFile(req);
+
+    const userDataArray=[]
+    for(const item of csvData){
+        const userData=await getUserDataFromObject(item);
+
+        const userDataWithRole=Object.assign(userData,{
+            role:"student"
+        }) as UserRegisterData;
+
+        const user=new User(userData);
+
+        await user.validate();
+
+        userDataArray.push(userDataWithRole);
+    }
+
+
+    const studentDataArray=[]
+
+    for(const item of csvData){
+        const { courseId } = item;
+
+        if (!courseId || courseId === "") {
+            throw new ApiError(400, "course id is required");
+        }
+
+        if (!(await courseExistsInDepartment(item.departmentId, courseId))) {
+            throw new ApiError(400, "course not exists in your department");
+        }
+
+        const studentData={
+            courseId: courseId
+        }
+        studentDataArray.push(studentData);
+    }
+
+
+    // Create user  
+    for(let i=0;i<userDataArray.length;i++){
+        const userInDb = await register(userDataArray[i]);
+
+        // Create student
+        const studentInDb = await Student.create({
+            courseId: studentDataArray[i].courseId,
+            userId: userInDb._id,
+        });
+    }
+
+    res.status(201).json(
+        new ApiResponse(201,{},"Students register successfully")
+    )
+})
 
 const getStudent = asyncHandler(async function (
     req: Request,
@@ -173,4 +232,4 @@ const getAllStudentAccordingToCourse=asyncHandler(
     }
 )
 
-export { registerStudent, getStudent,getAllStudentAccordingToCourse };
+export { registerStudent, getStudent,getAllStudentAccordingToCourse,registerStudentByCsv };

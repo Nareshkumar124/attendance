@@ -56,6 +56,33 @@ const getUserDataFromRequest = async function (req: Request): Promise<{
     return { auid, name, email, password, departmentId };
 };
 
+const getUserDataFromObject=async function (obj:any):Promise<{
+    auid: string;
+    name: string;
+    email: string;
+    password: string;
+    departmentId: string;
+}> {
+
+    const {auid, name, email, password, departmentId}=obj;
+
+    // Check if any of the fields are empty or not provided
+    // Check if any of the fields are empty or not provided
+    if (
+        [auid, name, email, password, departmentId].some(
+            (field) => field?.trim() === "" || !field
+        )
+    ) {
+        throw new ApiError(
+            400,
+            "Auid, Name, Email, Password, department id is required"
+        );
+    }
+
+    return { auid, name, email, password, departmentId };
+
+}
+
 const courseExistsInDepartment = async function (
     departmentId: string,
     courseId: string
@@ -67,6 +94,8 @@ const courseExistsInDepartment = async function (
 
     return courseCount > 0;
 };
+
+
 
 const getDataFromCsvFile = async function (req: Request) {
     const file = req.file;
@@ -97,4 +126,5 @@ export {
     getUserDataFromRequest,
     courseExistsInDepartment,
     getDataFromCsvFile,
+    getUserDataFromObject
 };

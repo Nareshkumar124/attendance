@@ -67,6 +67,7 @@ const uploadDepartmentsUsingCsv=asyncHandler(
     async function (req:Request,res:Response,next:NextFunction){
 
         const jsonArray=await getDataFromCsvFile(req);
+        
 
         const validatedJsonArray=[]
 
