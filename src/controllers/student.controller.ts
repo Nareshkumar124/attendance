@@ -35,21 +35,17 @@ const registerStudent = asyncHandler(async function (
     if (!(await courseExistsInDepartment(user.departmentId, courseId))) {
         throw new ApiError(400, "course not exists in your department");
     }
-
     // Create user
     let userInDb = await register(userWithRole);
-
     // Create student
     let studentInDb = await Student.create({
         courseId: courseId,
         userId: userInDb._id,
     });
-
     if (!studentInDb) {
         User.deleteOne({ _id: userInDb._id });
         throw new ApiError(500, "Internal Server Error");
     }
-
     const userDb = await User.findById(userInDb._id).select("-password");
     const studentDb = await Student.findById(studentInDb._id);
 
