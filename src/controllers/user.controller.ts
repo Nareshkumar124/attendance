@@ -73,5 +73,43 @@ const logoutUser = asyncHandler(async function (req:Request,res:Response,next:Ne
     res.status(200).clearCookie("token").json({message:"Logout Successful"});
 }); 
 
+const updatePassword=asyncHandler(async function (req:Request,res:Response,next:NextFunction){
+    
+    const {oldPassword,newPassword}=req.body;
+    const {_id:userId}=res.locals.user;
 
-export { register, loginUser, logoutUser,UserRegisterData };
+    if(!oldPassword){
+        throw new ApiError(400,"Old password required");
+    }
+
+    if(!newPassword){
+        throw new ApiError(400,"New password required");
+    }
+
+    if(!userId){
+        throw new ApiError(500,"Internal Server Error");
+    }
+
+    const user=await User.findById(userId);
+
+    if(!user){
+        throw new ApiError(400,"User not found");
+    }
+
+    const isPasswordCorrect=await user.isPasswordCorrect(oldPassword);
+
+    if(!isPasswordCorrect){
+        throw new ApiError(400,"Password is not correct");
+    }
+
+    user.password=newPassword;
+
+    await user.save();
+
+    res.status(200).json(
+        new ApiResponse(200,{},"Password updated successfully")
+    )
+}) 
+
+
+export { register, loginUser, logoutUser,UserRegisterData,updatePassword };
