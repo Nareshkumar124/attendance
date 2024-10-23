@@ -37,7 +37,7 @@ const testSchema:Schema=new Schema({
         type:String,
         required:true,
     }, 
-    courseId:{
+    subjectId:{
         type:String,
         required:true,
     }, 

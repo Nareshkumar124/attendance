@@ -6,22 +6,22 @@ import {Request,Response,NextFunction} from 'express';
 
 const addTestData=asyncHandler(async function(req:Request,res:Response,next:NextFunction){
     // get data from body
-    const {auid,name,macAddress,time,teacherId,email,courseId,date}=req.body;
+    const {auid,name,macAddress,time,teacherId,email,subjectId,date}=req.body;
 
     if (
-        [auid, name, email, time, teacherId,macAddress,courseId,date].some(
+        [auid, name, email, time, teacherId,macAddress,subjectId,date].some(
             (field) => field?.trim() === "" || !field
         )
     ) {
         throw new ApiError(
             400,
-            "Auid, Name, Email, Time, teacherId, courseId,date and macAddress is required"
+            "Auid, Name, Email, Time, teacherId, subjectId,date and macAddress is required"
         );
     }
 
 
     const testDataDb=await Test.create({
-        auid,name,macAddress,time,teacherId,email,courseId,date
+        auid,name,macAddress,time,teacherId,email,subjectId,date
     })
 
     if(!testDataDb){
