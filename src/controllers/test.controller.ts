@@ -31,7 +31,7 @@ const addTestData=asyncHandler(async function(req:Request,res:Response,next:Next
     }
 
     res.status(200).json(
-        new ApiResponse(200,testDataDb,"Data enter successfully")
+        new ApiResponse(200,{},"Data enter successfully")
     )
 })
 
