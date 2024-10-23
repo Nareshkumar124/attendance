@@ -6,8 +6,10 @@ import {Request,Response,NextFunction} from 'express';
 
 const addTestData=asyncHandler(async function(req:Request,res:Response,next:NextFunction){
     // get data from body
-    const {auid,name,macAddress,time,teacherId,email,subjectId,date}=req.body;
+    const {macAddress,time,teacherId,subjectId,date}=req.body;
 
+    const {auid,name,email}=res.locals.user;
+    
     if (
         [auid, name, email, time, teacherId,macAddress,subjectId,date].some(
             (field) => field?.trim() === "" || !field
@@ -29,10 +31,8 @@ const addTestData=asyncHandler(async function(req:Request,res:Response,next:Next
     }
 
     res.status(200).json(
-        new ApiResponse(200,{},"Data enter successfully")
+        new ApiResponse(200,testDataDb,"Data enter successfully")
     )
-
-
 })
 
 export {
