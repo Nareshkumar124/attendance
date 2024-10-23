@@ -10,6 +10,7 @@ import {calendarRouter} from './routes/calendar.routes';
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { subjectRouter } from "./routes/subject.routes";
+import {testRouter} from './routes/test.routes';  
 
 const app: Application = express();
 
@@ -44,5 +45,6 @@ app.use("/api/v1/faculty", facultyRouter);
 app.use("/api/v1/subject", subjectRouter);
 app.use("/api/v1/attendance", attendanceRouter);
 app.use("/api/v1/calendar", calendarRouter);
+app.use("/api/v1/test", testRouter);
 
 export default app;
