@@ -9,6 +9,8 @@ const addTestData=asyncHandler(async function(req:Request,res:Response,next:Next
     const {macAddress,time,teacherId,subjectId,date}=req.body;
 
     const {auid,name,email}=res.locals.user;
+
+    console.log({auid,name,email,macAddress,time,teacherId,subjectId,date})
     
     if (
         [auid, name, email, time, teacherId,macAddress,subjectId,date].some(
@@ -17,7 +19,7 @@ const addTestData=asyncHandler(async function(req:Request,res:Response,next:Next
     ) {
         throw new ApiError(
             400,
-            "Auid, Name, Email, Time, teacherId, subjectId,date and macAddress is required"
+            "macAddress,time,teacherId,subjectId and date is required"
         );
     }
 
